@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacant.AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #3d3d3c;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        #jobList li {
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI-Powered Resume Uploader</h1>
+    <form id="resumeForm" enctype="multipart/form-data">
+        <label for="resume">Upload your resume (PDF or Image):</label>
+        <input type="file" id="resume" name="resume" class="file-input" accept=".pdf, .png, .jpg, .jpeg" required>
+        <button type="submit">Upload and Analyze</button>
+    </form>
+    <h2>Recommended Jobs:</h2>
+    <ul id="jobList"></ul>
+
+    <script>
+        const form = document.getElementById("resumeForm");
+        const jobList = document.getElementById("jobList");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+
+            // Send the file to the backend
+            const response = await fetch("http://localhost:3000/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            jobList.innerHTML = ""; // Clear old job listings
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            data.jobs.forEach((job) => {
+                const li = document.createElement("li");
+                li.textContent = `${job.title} at ${job.company} - ${job.location}`;
+                jobList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
